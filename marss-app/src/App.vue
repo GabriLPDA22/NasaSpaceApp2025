@@ -1,27 +1,27 @@
 <script setup>
-import Home from './components/Home.vue'
+import { RouterView } from 'vue-router'
 </script>
 
 <template>
-  <Home />
+  <div id="app">
+    <RouterView v-slot="{ Component }">
+      <Transition name="fade" mode="out-in">
+        <component :is="Component" />
+      </Transition>
+    </RouterView>
+  </div>
 </template>
 
 <style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+/* Transiciones entre páginas */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
 }
-
-body {
-  margin: 0;
-  padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
 }
-
-#app {
-  margin: 0;
-  padding: 0;
-  width: 100%;
+.logo.vue:hover {
+  filter: drop-shadow(0 0 2em #42b883aa);
 }
 </style>
