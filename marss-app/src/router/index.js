@@ -4,7 +4,7 @@ const routes = [
   {
     path: "/",
     name: "Home",
-    component: () => import("../views/HomeView.vue"),
+    component: () => import("../components/Home.vue"),
     meta: {
       title: "Mars Circular Economy - Home",
     },
