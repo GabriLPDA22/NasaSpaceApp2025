@@ -1,17 +1,17 @@
 <template>
   <div id="app-container">
-    <router-view /> </div>
+    <NavBar /> <router-view />
+  </div>
 </template>
 
 <script setup>
-// No se necesita lógica aquí para este caso simple
+import NavBar from './components/NavBar.vue'; // <-- Importa el componente
 </script>
 
 <style lang="scss">
-// Estilos globales muy básicos
 body {
   margin: 0;
-  background-color: #121212; // Un fondo oscuro para toda la página
+  background-color: #121212;
   font-family: sans-serif;
 }
 
