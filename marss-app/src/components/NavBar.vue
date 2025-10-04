@@ -2,6 +2,7 @@
   <nav class="main-nav">
     <router-link to="/">📷 Explorador</router-link>
     <router-link to="/log">🚀 Bitácora</router-link>
+    <router-link to="/routes">🗺️ Rutas</router-link>
   </nav>
 </template>
 
