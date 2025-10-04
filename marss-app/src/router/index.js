@@ -24,6 +24,26 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
+  // Configuración de scroll behavior
+  scrollBehavior(to, from, savedPosition) {
+    // Si hay una posición guardada (botón atrás del navegador), usar esa
+    if (savedPosition) {
+      return savedPosition;
+    }
+    // Si tiene hash (ancla), ir a ese elemento
+    if (to.hash) {
+      return {
+        el: to.hash,
+        behavior: 'smooth',
+      };
+    }
+    // Por defecto, ir arriba con scroll suave
+    return {
+      top: 0,
+      left: 0,
+      behavior: 'smooth',
+    };
+  },
 });
 
 export default router;
