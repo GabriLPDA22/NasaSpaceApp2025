@@ -61,7 +61,7 @@ const milestones = ref([
     date: '2022-08-05',
     title: 'Una Década en Marte',
     description: 'El rover celebra su décimo aniversario en el Planeta Rojo, superando con creces su misión principal de dos años.',
-    camera: 'NAVCAM',
+    camera: 'CHEMCAM',
     sol: 3554,
     distance: '28.1 km',
     link: 'https://www.jpl.nasa.gov/news/nasas-curiosity-rover-marks-10-years-on-mars'
@@ -94,19 +94,10 @@ const milestones = ref([
     link: 'https://mars.nasa.gov/news/8892/nasas-curiosity-rover-drives-past-15-mile-mark/'
   },
   {
-    date: '2019-12-24',
-    title: 'El Panorama de 1.8 Billones de Píxeles',
-    description: 'Durante las vacaciones, el rover toma más de 1.000 imágenes con su Mastcam para crear el panorama de mayor resolución de la superficie marciana hasta la fecha.',
-    camera: 'MAST',
-    sol: 2620,
-    distance: '21.5 km',
-    link: 'https://mars.nasa.gov/news/8622/nasas-curiosity-mars-rover-snaps-its-highest-resolution-panorama-yet/'
-  },
-  {
     date: '2019-04-06',
     title: 'Estudio de la "Unidad Arcillosa"',
     description: 'El rover llega a una región rica en minerales de arcilla, clave para entender el historial del agua en el cráter Gale.',
-    camera: 'MAST',
+    camera: '',
     sol: 2373,
     distance: '21.0 km',
     link: 'https://mars.nasa.gov/news/8472/nasas-curiosity-mars-rover-drills-in-clay-bearing-unit/'
@@ -133,7 +124,7 @@ const milestones = ref([
     date: '2015-08-30',
     title: 'Análisis Detallado de "Big Sky"',
     description: 'El rover utiliza su cámara de mano MAHLI para obtener imágenes microscópicas de la roca "Big Sky", revelando su textura y composición.',
-    camera: 'MAHLI',
+    camera: '',
     sol: 1090,
     distance: '11.1 km',
     link: 'https://mars.nasa.gov/msl/multimedia/raw-images/?order=sol+desc%2Cinstrument_sort+asc%2Csample_type_sort+asc%2C+date_taken+desc&per_page=50&page=0&sol_from=1090&sol_to=1090&camera_instrument=MAHLI'
@@ -142,7 +133,7 @@ const milestones = ref([
     date: '2014-12-16',
     title: 'Detección de Pulsos de Metano',
     description: 'Los instrumentos del rover detectan un aumento significativo y temporal en los niveles de metano, un gas que en la Tierra está ligado a procesos biológicos.',
-    camera: 'CHEMCAM',
+    camera: '',
     sol: 835,
     distance: '9.2 km',
     link: 'https://www.jpl.nasa.gov/news/nasas-curiosity-rover-detects-methane-spike-in-martian-atmosphere'
