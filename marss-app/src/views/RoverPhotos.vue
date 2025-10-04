@@ -1,5 +1,12 @@
 <template>
   <div class="rover-photos-view">
+    <div v-if="milestoneInfo" class="context-modal">
+      <button @click="milestoneInfo = null" class="close-modal-btn">&times;</button>
+      <h4>Contexto de la Misión</h4>
+      <h3>{{ milestoneInfo.title }}</h3>
+      <p>{{ milestoneInfo.description }}</p>
+    </div>
+
     <header class="header">
       <h1>🛰️ Explorador de Fotos del Rover de Marte</h1>
       <p>Selecciona una fecha y filtra por cámara para explorar las imágenes del rover Curiosity.</p>
@@ -23,47 +30,26 @@
       </div>
     </div>
 
-    <CalendarModal
-      v-if="isCalendarOpen"
-      :initial-date="selectedDate"
-      @close="isCalendarOpen = false"
-      @date-selected="updateDate"
-    />
-
-    <div v-if="isLoading" class="feedback-message">
-      <p>Cargando imágenes desde Marte... 👨‍🚀</p>
-    </div>
-    <div v-else-if="error" class="feedback-message error">
-      <p>{{ error }}</p>
-    </div>
+    <CalendarModal v-if="isCalendarOpen" :initial-date="selectedDate" @close="isCalendarOpen = false" @date-selected="updateDate" />
+    <div v-if="isLoading" class="feedback-message"><p>Cargando imágenes desde Marte... 👨‍🚀</p></div>
+    <div v-else-if="error" class="feedback-message error"><p>{{ error }}</p></div>
     <div v-else-if="photos.length > 0">
       <div class="photo-grid">
         <div v-for="photo in photos" :key="photo.id" class="photo-card">
-          <img :src="photo.img_src" :alt="'Foto del rover en Marte tomada por la cámara ' + photo.camera.name" />
+          <img :src="photo.img_src" :alt="'Foto del rover en Marte'" />
           <div class="photo-info">
             <p><strong>Cámara:</strong> {{ photo.camera.full_name }}</p>
             <p><strong>Fecha terrestre:</strong> {{ photo.earth_date }}</p>
           </div>
         </div>
       </div>
-      
       <div class="pagination">
         <button @click="previousPage" :disabled="currentPage === 1 || isLoading" class="nav-button">&laquo;</button>
-        <button 
-          v-for="pageNumber in paginationNumbers" 
-          :key="pageNumber"
-          @click="goToPage(pageNumber)"
-          class="page-number"
-          :class="{ active: pageNumber === currentPage }"
-        >
-          {{ pageNumber }}
-        </button>
+        <button v-for="pageNumber in paginationNumbers" :key="pageNumber" @click="goToPage(pageNumber)" class="page-number" :class="{ active: pageNumber === currentPage }">{{ pageNumber }}</button>
         <button @click="nextPage" :disabled="isLastPage || isLoading" class="nav-button">&raquo;</button>
       </div>
     </div>
-    <div v-else-if="hasSearched" class="feedback-message">
-      <p>No se encontraron fotos con los filtros seleccionados.</p>
-    </div>
+    <div v-else-if="hasSearched" class="feedback-message"><p>No se encontraron fotos con los filtros seleccionados.</p></div>
   </div>
 </template>
 
@@ -86,6 +72,8 @@ const currentPage = ref(1);
 const isLastPage = ref(false);
 const isCalendarOpen = ref(false);
 const PHOTOS_PER_PAGE = 12;
+// <-- CAMBIO: Nuevo estado para la información del hito
+const milestoneInfo = ref(null);
 const cameras = ref([ { abbr: 'FHAZ', name: 'Front Hazard' }, { abbr: 'RHAZ', name: 'Rear Hazard' }, { abbr: 'MAST', name: 'Mast Camera' }, { abbr: 'CHEMCAM', name: 'ChemCam' }, { abbr: 'MAHLI', name: 'MAHLI' }, { abbr: 'MARDI', name: 'MARDI' }, { abbr: 'NAVCAM', name: 'NavCam' } ]);
 
 const formattedDate = computed(() => {
@@ -94,88 +82,50 @@ const formattedDate = computed(() => {
 });
 
 // --- LÓGICA ---
-watch([selectedDate, selectedCamera], () => {
-  searchPhotos();
-});
-
+watch([selectedDate, selectedCamera], () => { searchPhotos(); });
 const paginationNumbers = computed(() => {
   const windowSize = 5;
   const start = Math.max(1, currentPage.value - Math.floor(windowSize / 2));
   const numbers = [];
-  for(let i = 0; i < windowSize; i++) {
-    const page = start + i;
-    if (isLastPage.value && page > currentPage.value) {
-        break;
-    }
-    numbers.push(page);
-  }
+  for(let i = 0; i < windowSize; i++) { const page = start + i; if (isLastPage.value && page > currentPage.value) { break; } numbers.push(page); }
   return numbers;
 });
-
-const goToPage = (pageNumber) => {
-  if (pageNumber === currentPage.value) return;
-  currentPage.value = pageNumber;
-  fetchPhotos();
-};
-
+const goToPage = (pageNumber) => { if (pageNumber === currentPage.value) return; currentPage.value = pageNumber; fetchPhotos(); };
 const fetchPhotos = async () => {
-  isLoading.value = true;
-  error.value = null;
-  const apiKey = 'NCVkqcCVoHJEsgWC5CxoNKul6BS53GfhLmpSYXzj';
+  isLoading.value = true; error.value = null; const apiKey = 'NCVkqcCVoHJEsgWC5CxoNKul6BS53GfhLmpSYXzj';
   let apiUrl = `https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?earth_date=${selectedDate.value}&page=${currentPage.value}&api_key=${apiKey}`;
-  
-  if (selectedCamera.value) {
-    apiUrl += `&camera=${selectedCamera.value}`;
-  }
-
+  if (selectedCamera.value) { apiUrl += `&camera=${selectedCamera.value}`; }
   try {
     const response = await axios.get(apiUrl);
     photos.value = response.data.photos.slice(0, PHOTOS_PER_PAGE);
     isLastPage.value = response.data.photos.length < 25;
-  } catch (err) {
-    console.error("Error al obtener las fotos:", err);
-    error.value = "Hubo un problema al conectar con la API. Intenta de nuevo.";
-    photos.value = [];
-  } finally {
-    isLoading.value = false;
-  }
+  } catch (err) { console.error("Error al obtener las fotos:", err); error.value = "Hubo un problema al conectar con la API."; photos.value = [];
+  } finally { isLoading.value = false; }
 };
-
-const searchPhotos = () => {
-  currentPage.value = 1;
-  hasSearched.value = true;
-  fetchPhotos();
-};
-
-const nextPage = () => {
-  if (!isLastPage.value) {
-    currentPage.value++;
-    fetchPhotos();
-  }
-};
-
-const previousPage = () => {
-  if (currentPage.value > 1) {
-    currentPage.value--;
-    fetchPhotos();
-  }
-};
-
-const updateDate = (newDate) => {
-  selectedDate.value = newDate;
-  isCalendarOpen.value = false;
-};
+const searchPhotos = () => { currentPage.value = 1; hasSearched.value = true; fetchPhotos(); };
+const nextPage = () => { if (!isLastPage.value) { currentPage.value++; fetchPhotos(); } };
+const previousPage = () => { if (currentPage.value > 1) { currentPage.value--; fetchPhotos(); } };
+const updateDate = (newDate) => { selectedDate.value = newDate; isCalendarOpen.value = false; };
 
 onMounted(() => {
+    // <-- CAMBIO: Lógica para leer todos los datos de la URL
+    if (route.query.title && route.query.description) {
+      milestoneInfo.value = {
+        title: route.query.title,
+        description: route.query.description,
+      };
+    }
     if (route.query.date) {
         selectedDate.value = route.query.date;
     }
     if (route.query.camera) {
         selectedCamera.value = route.query.camera;
+    } else if (route.query.date) {
+        // Si venimos de un hito pero no tiene cámara, reseteamos la cámara
+        selectedCamera.value = '';
     }
     
     hasSearched.value = true;
-    
     if (!route.query.date && !route.query.camera) {
         fetchPhotos();
     }
@@ -196,16 +146,60 @@ $border-color: #333;
   padding: 1rem;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   color: $light-text;
+  position: relative;
+}
+
+.context-modal {
+  position: fixed;
+  top: 100px;
+  right: 20px;
+  width: 300px;
+  background-color: lighten($card-bg, 5%);
+  border-radius: 8px;
+  border: 1px solid $border-color;
+  padding: 1.5rem;
+  z-index: 100;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+
+  h4 {
+    margin-top: 0;
+    color: darken($light-text, 30%);
+    text-transform: uppercase;
+    font-size: 0.8rem;
+  }
+
+  h3 {
+    margin-top: 0.5rem;
+    color: $nasa-blue;
+  }
+
+  p {
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+
+  .close-modal-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: none;
+    border: none;
+    color: $light-text;
+    font-size: 1.5rem;
+    cursor: pointer;
+  }
 }
 
 .header {
   text-align: center;
   margin-bottom: 2rem;
-  h1 { 
+
+  h1 {
     font-size: 1.8rem;
     color: white;
     margin-bottom: 0.5rem;
   }
+  
   p {
     font-size: 1rem;
     color: darken($light-text, 20%);
@@ -257,6 +251,7 @@ $border-color: #333;
   padding: 2rem 1rem;
   background-color: $card-bg;
   border-radius: 8px;
+
   &.error {
     color: $nasa-red;
     font-weight: bold;
@@ -274,14 +269,17 @@ $border-color: #333;
   border-radius: 8px;
   overflow: hidden;
   border: 1px solid $border-color;
+
   img {
     width: 100%;
     aspect-ratio: 1 / 1;
     object-fit: cover;
     display: block;
   }
+  
   .photo-info {
     padding: 1rem;
+    
     p {
       margin: 0.5rem 0;
       font-size: 0.9rem;
@@ -330,10 +328,17 @@ $border-color: #333;
   }
 }
 
+@media (max-width: 1024px) {
+  .context-modal {
+    display: none;
+  }
+}
+
 @media (min-width: 768px) {
   .rover-photos-view {
     padding: 2rem;
   }
+
   .header {
     h1 {
       font-size: 2.5rem;
@@ -342,6 +347,7 @@ $border-color: #333;
       font-size: 1.1rem;
     }
   }
+
   .controls {
     flex-direction: row;
     justify-content: center;
@@ -358,13 +364,14 @@ $border-color: #333;
       min-width: 180px;
     }
   }
+
   .photo-grid {
     grid-template-columns: repeat(3, 1fr);
     gap: 1.5rem;
   }
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 1280px) {
   .photo-grid {
     grid-template-columns: repeat(4, 1fr);
   }
