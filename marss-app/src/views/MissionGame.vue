@@ -1,14 +1,31 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 
-// --- CONFIGURACIÓN DEL PUZZLE ---
-const gridSize = 4;
-const imageUrl = ref('/images/flor.png');
+// --- ESTRUCTURA DE NIVELES ---
+// ¡Aquí puedes configurar los niveles y cambiar las imágenes fácilmente!
+// Asegúrate de que las imágenes estén en tu carpeta `public/images/`.
+const levels = ref([
+  { level: 1, gridSize: 3, imageUrl: '/images/flor.png' },
+  { level: 2, gridSize: 4, imageUrl: '/images/foto_2.png' }, // Cambia esto
+  { level: 3, gridSize: 4, imageUrl: '/images/foto_3.png' }, // Cambia esto
+  { level: 4, gridSize: 4, imageUrl: '/images/foto_4.png' }, // Cambia esto
+  { level: 5, gridSize: 5, imageUrl: '/images/foto_5.png' }  // Cambia esto
+]);
 
 // --- ESTADO DEL JUEGO ---
+const currentLevelIndex = ref(0);
 const tiles = ref([]);
+const allLevelsCompleted = ref(false);
 
-// --- LÓGICA DEL JUEGO ---
+// --- PROPIEDADES COMPUTADAS (Hacen que el juego sea dinámico) ---
+const currentLevel = computed(() => levels.value[currentLevelIndex.value]);
+const gridSize = computed(() => currentLevel.value.gridSize);
+const imageUrl = computed(() => currentLevel.value.imageUrl);
+const tileSize = computed(() => {
+  if (gridSize.value === 5) return 80; // Piezas más pequeñas para el 5x5
+  if (gridSize.value === 4) return 100; // Tamaño estándar para 4x4
+  return 120; // Piezas más grandes para el 3x3
+});
 
 const isSolved = computed(() => {
   if (!tiles.value.length || tiles.value[tiles.value.length - 1] !== null) return false;
@@ -18,12 +35,34 @@ const isSolved = computed(() => {
   return true;
 });
 
+// --- LÓGICA DEL JUEGO ---
+
+function setupLevel(levelIndex) {
+  currentLevelIndex.value = levelIndex;
+  allLevelsCompleted.value = false;
+  
+  const size = gridSize.value;
+  tiles.value = [...Array(size * size - 1).keys()].map(i => i + 1);
+  tiles.value.push(null);
+  
+  shuffle();
+}
+
+function nextLevel() {
+  if (currentLevelIndex.value < levels.value.length - 1) {
+    setupLevel(currentLevelIndex.value + 1);
+  } else {
+    allLevelsCompleted.value = true;
+  }
+}
+
 function moveTile(clickedIndex) {
   if (isSolved.value) return;
 
   const emptyIndex = tiles.value.indexOf(null);
-  const [clickedRow, clickedCol] = [Math.floor(clickedIndex / gridSize), clickedIndex % gridSize];
-  const [emptyRow, emptyCol] = [Math.floor(emptyIndex / gridSize), emptyIndex % gridSize];
+  const size = gridSize.value;
+  const [clickedRow, clickedCol] = [Math.floor(clickedIndex / size), clickedIndex % size];
+  const [emptyRow, emptyCol] = [Math.floor(emptyIndex / size), emptyIndex % size];
 
   const isAdjacent = (Math.abs(clickedRow - emptyRow) + Math.abs(clickedCol - emptyCol)) === 1;
 
@@ -33,19 +72,17 @@ function moveTile(clickedIndex) {
 }
 
 function shuffle() {
-  tiles.value = [...Array(gridSize * gridSize - 1).keys()].map(i => i + 1);
-  tiles.value.push(null);
-  
-  let moves = 300;
+  let moves = gridSize.value * 100; // Más movimientos para puzzles más grandes
   for (let i = 0; i < moves; i++) {
     const emptyIndex = tiles.value.indexOf(null);
-    const [emptyRow, emptyCol] = [Math.floor(emptyIndex / gridSize), emptyIndex % gridSize];
+    const size = gridSize.value;
+    const [emptyRow, emptyCol] = [Math.floor(emptyIndex / size), emptyIndex % size];
     
     const possibleMoves = [];
-    if (emptyRow > 0) possibleMoves.push(emptyIndex - gridSize);
-    if (emptyRow < gridSize - 1) possibleMoves.push(emptyIndex + gridSize);
+    if (emptyRow > 0) possibleMoves.push(emptyIndex - size);
+    if (emptyRow < size - 1) possibleMoves.push(emptyIndex + size);
     if (emptyCol > 0) possibleMoves.push(emptyIndex - 1);
-    if (emptyCol < gridSize - 1) possibleMoves.push(emptyIndex + 1);
+    if (emptyCol < size - 1) possibleMoves.push(emptyIndex + 1);
 
     const randomIndex = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
     [tiles.value[randomIndex], tiles.value[emptyIndex]] = [tiles.value[emptyIndex], tiles.value[randomIndex]];
@@ -55,19 +92,22 @@ function shuffle() {
 function getTileStyle(tileValue) {
   if (tileValue === null) return {};
   
+  const size = gridSize.value;
   const originalIndex = tileValue - 1;
-  const col = originalIndex % gridSize;
-  const row = Math.floor(originalIndex / gridSize);
+  const col = originalIndex % size;
+  const row = Math.floor(originalIndex / size);
 
   return {
     backgroundImage: `url(${imageUrl.value})`,
-    backgroundSize: `${gridSize * 100}%`,
-    backgroundPosition: `${(col * 100) / (gridSize - 1)}% ${(row * 100) / (gridSize - 1)}%`,
+    backgroundSize: `${size * 100}%`,
+    backgroundPosition: `${(col * 100) / (size - 1)}% ${(row * 100) / (size - 1)}%`,
+    width: `${tileSize.value}px`,
+    height: `${tileSize.value}px`,
   };
 }
 
 onMounted(() => {
-  shuffle();
+  setupLevel(0); // Inicia el juego en el primer nivel
 });
 </script>
 
@@ -76,41 +116,55 @@ onMounted(() => {
     <div class="puzzle-container">
       <div class="header">
         <div class="header-badge">JUEGO INTERACTIVO</div>
-        <h1>Slide Puzzle Marciano</h1>
-        <p class="subtitle">Ordena las piezas para revelar la insignia de la misión.</p>
+        <h1 v-if="!allLevelsCompleted">Slide Puzzle - Nivel {{ currentLevel.level }}</h1>
+        <h1 v-else>¡Juego Completado!</h1>
+        <p v-if="!allLevelsCompleted" class="subtitle">Ordena las piezas para revelar la imagen.</p>
+        <p v-else class="subtitle">¡Has superado todos los desafíos, gran trabajo!</p>
       </div>
 
-      <TransitionGroup tag="div" name="tile-slide" class="puzzle-board">
-        <div
-          v-for="(tile, index) in tiles"
-          :key="tile"
-          class="puzzle-tile"
-          :class="{ 'empty-tile': tile === null }"
-          :style="getTileStyle(tile)"
-          @click="moveTile(index)"
-        >
-        </div>
-      </TransitionGroup>
-
-      <div v-if="isSolved" class="win-message">
-        <h3>🚀 ¡Insignia Reconstruida!</h3>
+      <div v-if="allLevelsCompleted" class="final-win-screen">
+          <h3>🚀 ¡Todas las misiones completadas! 🚀</h3>
+          <p>Has demostrado una gran habilidad como explorador.</p>
+          <button @click="setupLevel(0)" class="shuffle-button">Jugar desde el principio</button>
       </div>
       
-      <button @click="shuffle" class="shuffle-button">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
-        </svg>
-        <span>Barajar de Nuevo</span>
-      </button>
+      <template v-else>
+        <TransitionGroup 
+          tag="div" 
+          name="tile-slide" 
+          class="puzzle-board"
+          :style="{ 
+            gridTemplateColumns: `repeat(${gridSize}, ${tileSize}px)`,
+            width: `${gridSize * tileSize + (gridSize - 1) * 6 + 20}px` // Ancho dinámico
+          }"
+        >
+          <div
+            v-for="(tile, index) in tiles"
+            :key="tile"
+            class="puzzle-tile"
+            :class="{ 'empty-tile': tile === null }"
+            :style="getTileStyle(tile)"
+            @click="moveTile(index)"
+          >
+          </div>
+        </TransitionGroup>
+
+        <div v-if="isSolved" class="win-message">
+          <h3>¡Nivel {{ currentLevel.level }} Superado!</h3>
+          <button @click="nextLevel" class="next-level-button">Siguiente Nivel</button>
+        </div>
+        
+        <button v-else @click="shuffle" class="shuffle-button">Barajar de Nuevo</button>
+      </template>
+
     </div>
   </div>
 </template>
 
 <style scoped>
-/* Contenedor principal de la vista */
 .puzzle-view {
   width: 100%;
-  min-height: calc(100vh - 80px); /* Resta la altura aproximada de tu navbar */
+  min-height: calc(100vh - 80px);
   padding: 2rem 1rem;
   display: flex;
   justify-content: center;
@@ -118,7 +172,6 @@ onMounted(() => {
   color: #FFFFFF;
 }
 
-/* Contenedor del puzzle */
 .puzzle-container {
   display: flex;
   flex-direction: column;
@@ -132,7 +185,6 @@ onMounted(() => {
   box-shadow: 0 10px 50px rgba(0, 0, 0, 0.4);
 }
 
-/* Cabecera */
 .header {
   text-align: center;
   margin-bottom: 1rem;
@@ -168,28 +220,22 @@ onMounted(() => {
   max-width: 400px;
 }
 
-/* Tablero del puzzle - ESTILO MODIFICADO */
 .puzzle-board {
   display: grid;
-  grid-template-columns: repeat(4, 100px);
   gap: 6px;
   padding: 10px;
   border-radius: 8px;
   position: relative;
-  /* Fondo nuevo para el tablero */
   background: linear-gradient(145deg, #2a2d34, #21252b);
   box-shadow: inset 0 2px 4px rgba(0,0,0,0.5), 0 5px 15px rgba(0,0,0,0.4);
+  transition: all 0.3s ease-in-out;
 }
 
-/* Piezas del puzzle */
 .puzzle-tile {
-  width: 100px;
-  height: 100px;
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: inset 0 0 5px rgba(0,0,0,0.4);
-  border: 1px solid transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .puzzle-tile:hover:not(.empty-tile) {
@@ -198,12 +244,10 @@ onMounted(() => {
   z-index: 10;
 }
 
-/* Casilla vacía - ESTILO MODIFICADO */
 .empty-tile {
   cursor: default;
   box-shadow: inset 0 2px 5px rgba(0,0,0,0.4) !important;
   border: none !important;
-  /* Fondo de cuadrícula para la casilla vacía */
   background-color: rgba(11, 61, 145, 0.2) !important;
   background-image:
     linear-gradient(rgba(74, 144, 226, 0.2) 1px, transparent 1px),
@@ -215,7 +259,6 @@ onMounted(() => {
   transition: transform 0.4s cubic-bezier(0.55, 0, 0.1, 1);
 }
 
-/* Mensaje de victoria */
 .win-message {
   padding: 1rem 2rem;
   background: linear-gradient(135deg, rgba(11, 61, 145, 0.3), rgba(21, 101, 192, 0.2));
@@ -228,11 +271,35 @@ onMounted(() => {
 }
 
 .win-message h3 {
-  margin: 0;
+  margin: 0 0 1rem 0;
   font-size: 1.2rem;
 }
 
-/* Botón de barajar */
+.next-level-button {
+  padding: 0.6rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  background-color: #16a34a;
+  color: #FFFFFF;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.next-level-button:hover {
+  background-color: #15803d;
+  transform: scale(1.05);
+}
+
+.final-win-screen {
+  text-align: center;
+}
+
+.final-win-screen h3 {
+  font-size: 2rem;
+  color: #4ade80;
+}
+
 .shuffle-button {
   display: inline-flex;
   align-items: center;
@@ -255,20 +322,15 @@ onMounted(() => {
   box-shadow: 0 10px 25px rgba(252, 61, 33, 0.4);
 }
 
-/* Responsive */
 @media (max-width: 600px) {
-  .puzzle-board {
-    grid-template-columns: repeat(4, 75px);
-  }
-  .puzzle-tile {
-    width: 75px;
-    height: 75px;
-  }
   .header h1 {
-    font-size: 2rem;
+    font-size: 1.8rem;
   }
   .puzzle-container {
     padding: 1.5rem;
+  }
+  .puzzle-board {
+    transform: scale(0.8); /* Hacemos el tablero más pequeño en pantallas pequeñas */
   }
 }
 </style>
