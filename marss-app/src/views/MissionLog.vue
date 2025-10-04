@@ -10,7 +10,7 @@
         v-for="milestone in milestones" 
         :key="milestone.date" 
         class="milestone-card"
-        @click="goToPhotos(milestone.date)"
+        @click="goToPhotos(milestone.date, milestone.camera)"
       >
         <div class="milestone-date">{{ formatDate(milestone.date) }}</div>
         <div class="milestone-content">
@@ -28,46 +28,53 @@ import { useRouter } from 'vue-router';
 
 const router = useRouter();
 
-// He buscado algunos hitos importantes de la misión
 const milestones = ref([
   {
     date: '2012-08-06',
     title: 'Aterrizaje en Marte (Amartizaje)',
-    description: 'El rover Curiosity aterriza con éxito en el cráter Gale utilizando la compleja maniobra "Sky Crane".'
+    description: 'El rover Curiosity aterriza con éxito en el cráter Gale utilizando la compleja maniobra "Sky Crane".',
+    camera: 'FHAZ'
   },
   {
     date: '2013-02-09',
     title: 'Primera Muestra de Perforación',
-    description: 'Curiosity utiliza su taladro por primera vez para extraer una muestra de polvo de una roca llamada "John Klein".'
+    description: 'Curiosity utiliza su taladro por primera vez para extraer una muestra de polvo de una roca llamada "John Klein".',
+    camera: 'MAST'
   },
   {
     date: '2014-09-11',
     title: 'Llegada a la Base del Monte Sharp',
-    description: 'Tras un largo viaje, el rover llega a su principal destino científico, la base del Aeolis Mons (Monte Sharp).'
+    description: 'Tras un largo viaje, el rover llega a su principal destino científico, la base del Aeolis Mons (Monte Sharp).',
+    camera: ''
   },
   {
     date: '2018-06-07',
     title: 'Descubrimiento de Moléculas Orgánicas',
-    description: 'La NASA anuncia el hallazgo de moléculas orgánicas complejas en rocas de 3.500 millones de años, un ingrediente clave para la vida.'
+    description: 'La NASA anuncia el hallazgo de moléculas orgánicas complejas en rocas de 3.500 millones de años.',
+    camera: 'CHEMCAM'
   },
   {
     date: '2021-03-18',
     title: 'El Viaje Más Largo en un Sol',
-    description: 'Curiosity establece un nuevo récord de conducción, recorriendo 197.5 metros en un solo día marciano (sol).'
+    description: 'Curiosity establece un nuevo récord de conducción, recorriendo 197.5 metros en un solo día marciano (sol).',
+    camera: 'NAVCAM'
   },
    {
     date: '2022-08-05',
     title: 'Una Década en Marte',
-    description: 'El rover celebra su décimo aniversario en el Planeta Rojo, habiendo superado con creces su misión principal de dos años.'
+    description: 'El rover celebra su décimo aniversario en el Planeta Rojo, superando con creces su misión principal.',
+    camera: 'NAVCAM'
   }
 ]);
 
-// Función para navegar al explorador con la fecha como parámetro
-const goToPhotos = (date) => {
-  router.push({ path: '/', query: { date: date } });
+const goToPhotos = (date, camera) => {
+  const query = { date: date };
+  if (camera) {
+    query.camera = camera;
+  }
+  router.push({ path: '/', query: query });
 };
 
-// Función para formatear la fecha para que sea más legible
 const formatDate = (dateString) => {
   const date = new Date(dateString + 'T00:00:00');
   return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -90,8 +97,17 @@ $border-color: #333;
 .header {
   text-align: center;
   margin-bottom: 2.5rem;
-  h1 { font-size: 1.8rem; color: white; margin-bottom: 0.5rem; }
-  p { font-size: 1rem; color: darken($light-text, 20%); max-width: 600px; margin: auto; }
+  h1 {
+    font-size: 1.8rem;
+    color: white;
+    margin-bottom: 0.5rem;
+  }
+  p {
+    font-size: 1rem;
+    color: darken($light-text, 20%);
+    max-width: 600px;
+    margin: auto;
+  }
 }
 
 .milestone-card {
@@ -118,12 +134,16 @@ $border-color: #333;
 
   .milestone-content {
     padding: 1rem 1.5rem;
-    h3 { margin-top: 0; }
+    h3 {
+      margin-top: 0;
+    }
   }
 }
 
 @media (max-width: 768px) {
-  .header h1 { font-size: 1.5rem; }
+  .header h1 {
+    font-size: 1.5rem;
+  }
   .milestone-card {
     flex-direction: column;
     .milestone-date {

@@ -170,11 +170,13 @@ onMounted(() => {
     if (route.query.date) {
         selectedDate.value = route.query.date;
     }
+    if (route.query.camera) {
+        selectedCamera.value = route.query.camera;
+    }
     
     hasSearched.value = true;
-    // La búsqueda inicial se disparará automáticamente por el 'watch' al cambiar selectedDate,
-    // o simplemente la llamamos si no había fecha en la URL.
-    if (!route.query.date) {
+    
+    if (!route.query.date && !route.query.camera) {
         fetchPhotos();
     }
 });
@@ -199,8 +201,15 @@ $border-color: #333;
 .header {
   text-align: center;
   margin-bottom: 2rem;
-  h1 { font-size: 1.8rem; color: white; margin-bottom: 0.5rem; }
-  p { font-size: 1rem; color: darken($light-text, 20%); }
+  h1 { 
+    font-size: 1.8rem;
+    color: white;
+    margin-bottom: 0.5rem;
+  }
+  p {
+    font-size: 1rem;
+    color: darken($light-text, 20%);
+  }
 }
 
 .controls {
@@ -221,7 +230,9 @@ $border-color: #333;
     width: 100%;
   }
 
-  label { font-weight: bold; }
+  label {
+    font-weight: bold;
+  }
   
   select, .date-display-button {
     width: 100%;
@@ -235,7 +246,9 @@ $border-color: #333;
     text-align: left;
   }
   
-  .date-display-button { cursor: pointer; }
+  .date-display-button {
+    cursor: pointer;
+  }
 }
 
 .feedback-message {
@@ -244,7 +257,10 @@ $border-color: #333;
   padding: 2rem 1rem;
   background-color: $card-bg;
   border-radius: 8px;
-  &.error { color: $nasa-red; font-weight: bold; }
+  &.error {
+    color: $nasa-red;
+    font-weight: bold;
+  }
 }
 
 .photo-grid {
@@ -266,7 +282,10 @@ $border-color: #333;
   }
   .photo-info {
     padding: 1rem;
-    p { margin: 0.5rem 0; font-size: 0.9rem; }
+    p {
+      margin: 0.5rem 0;
+      font-size: 0.9rem;
+    }
   }
 }
 
@@ -312,10 +331,16 @@ $border-color: #333;
 }
 
 @media (min-width: 768px) {
-  .rover-photos-view { padding: 2rem; }
+  .rover-photos-view {
+    padding: 2rem;
+  }
   .header {
-    h1 { font-size: 2.5rem; }
-    p { font-size: 1.1rem; }
+    h1 {
+      font-size: 2.5rem;
+    }
+    p {
+      font-size: 1.1rem;
+    }
   }
   .controls {
     flex-direction: row;

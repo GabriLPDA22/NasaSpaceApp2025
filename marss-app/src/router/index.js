@@ -1,5 +1,3 @@
-// src/router/index.js
-
 import { createRouter, createWebHistory } from 'vue-router';
 import RoverPhotos from '../views/RoverPhotos.vue';
 import MissionLog from '../views/MissionLog.vue';
