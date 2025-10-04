@@ -34,9 +34,9 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
-  // Tu configuración de scrollBehavior se mantiene igual.
-  scrollBehavior(to, from, savedPosition) {
-    if (savedPosition) {
+  // Tu configuración de scrollBehavior se mantiene igual.Z
+  scrollBehavior(to, from, savedPosition) {AC
+    if (savedPosition) {AC
       return savedPosition;
     }
     if (to.hash) {
