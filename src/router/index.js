@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from "vue-router";
+import { createRouter, createWebHashHistory } from "vue-router"; // 👈 Cambiado
 import RoverPhotos from "../views/RoverPhotos.vue";
 import MissionLog from "../views/MissionLog.vue";
 import RoutesView from "../views/RoutesView.vue";
@@ -28,10 +28,9 @@ const routes = [
 ];
 
 const router = createRouter({
-  // Esta línea es la clave para que funcione en GitHub Pages
-  history: createWebHistory(import.meta.env.BASE_URL),
+  // 👇 Cambiado a createWebHashHistory para GitHub Pages
+  history: createWebHashHistory(import.meta.env.BASE_URL),
   routes,
-  // Configuración para que la página suba al principio al navegar
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) {
       return savedPosition;
