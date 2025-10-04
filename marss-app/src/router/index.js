@@ -1,7 +1,11 @@
+// index.js - ARCHIVO COMPLETO Y ACTUALIZADO
+
 import { createRouter, createWebHistory } from 'vue-router';
 import RoverPhotos from '../views/RoverPhotos.vue';
 import MissionLog from '../views/MissionLog.vue';
 import RoutesView from '../views/RoutesView.vue';
+// PASO 1: Importa el componente del juego que crearemos.
+import MissionGame from '../views/MissionGame.vue';
 
 const routes = [
   {
@@ -19,25 +23,28 @@ const routes = [
     name: 'RoutesView',
     component: RoutesView,
   },
+  // PASO 2: Añade el nuevo objeto de ruta para el juego.
+  {
+    path: '/game',
+    name: 'MissionGame',
+    component: MissionGame,
+  },
 ];
 
 const router = createRouter({
   history: createWebHistory(),
   routes,
-  // Configuración de scroll behavior
+  // Tu configuración de scrollBehavior se mantiene igual.
   scrollBehavior(to, from, savedPosition) {
-    // Si hay una posición guardada (botón atrás del navegador), usar esa
     if (savedPosition) {
       return savedPosition;
     }
-    // Si tiene hash (ancla), ir a ese elemento
     if (to.hash) {
       return {
         el: to.hash,
         behavior: 'smooth',
       };
     }
-    // Por defecto, ir arriba con scroll suave
     return {
       top: 0,
       left: 0,

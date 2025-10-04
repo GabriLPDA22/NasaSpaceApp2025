@@ -1,45 +1,111 @@
 <template>
   <nav class="main-nav">
     <div class="nav-container">
-      <!-- Logo/Brand -->
       <div class="nav-brand">
         <div class="brand-icon">
-          <img src="https://www.nasa.gov/wp-content/themes/nasa/assets/images/nasa-logo.svg" alt="NASA Logo" />
+          <img
+            src="https://www.nasa.gov/wp-content/themes/nasa/assets/images/nasa-logo.svg"
+            alt="NASA Logo"
+          />
         </div>
         <span class="brand-text">MARS EXPLORER</span>
       </div>
 
-      <!-- Nav Links -->
       <div class="nav-links">
         <router-link to="/" class="nav-link">
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <rect x="2" y="4" width="16" height="13" rx="2" stroke="currentColor" stroke-width="1.5"/>
-            <circle cx="10" cy="10.5" r="3" stroke="currentColor" stroke-width="1.5"/>
-            <path d="M6 4L7.5 2H12.5L14 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <rect
+              x="2"
+              y="4"
+              width="16"
+              height="13"
+              rx="2"
+              stroke="currentColor"
+              stroke-width="1.5"
+            />
+            <circle
+              cx="10"
+              cy="10.5"
+              r="3"
+              stroke="currentColor"
+              stroke-width="1.5"
+            />
+            <path
+              d="M6 4L7.5 2H12.5L14 4"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+            />
           </svg>
           <span>Explorador</span>
         </router-link>
-        
+
         <router-link to="/log" class="nav-link">
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <rect x="3" y="2" width="14" height="16" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
-            <path d="M7 6H13M7 10H13M7 14H10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-            <path d="M3 2V18C3 18 3 18 5 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <rect
+              x="3"
+              y="2"
+              width="14"
+              height="16"
+              rx="1.5"
+              stroke="currentColor"
+              stroke-width="1.5"
+            />
+            <path
+              d="M7 6H13M7 10H13M7 14H10"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+            />
+            <path
+              d="M3 2V18C3 18 3 18 5 18"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+            />
           </svg>
           <span>Bitácora</span>
         </router-link>
-        
+
         <router-link to="/routes" class="nav-link">
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/>
-            <path d="M10 2C10 2 6 6 6 10C6 14 10 18 10 18C10 18 14 14 14 10C14 6 10 2 10 2Z" stroke="currentColor" stroke-width="1.5"/>
-            <circle cx="10" cy="10" r="2" fill="currentColor"/>
+            <circle
+              cx="10"
+              cy="10"
+              r="8"
+              stroke="currentColor"
+              stroke-width="1.5"
+            />
+            <path
+              d="M10 2C10 2 6 6 6 10C6 14 10 18 10 18C10 18 14 14 14 10C14 6 10 2 10 2Z"
+              stroke="currentColor"
+              stroke-width="1.5"
+            />
+            <circle cx="10" cy="10" r="2" fill="currentColor" />
           </svg>
           <span>Rutas</span>
         </router-link>
+
+        <router-link to="/game" class="nav-link">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 20 20"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M17.5 9.17V6.5a2 2 0 00-2-2h-11a2 2 0 00-2 2v11a2 2 0 002 2h2.67"
+            />
+            <path d="M12.5 12.5H15V15h2.5V12.5H20V10h-2.5V7.5H15V10h-2.5z" />
+          </svg>
+          <span>Juego</span>
+        </router-link>
       </div>
 
-      <!-- Mission Status Badge -->
       <div class="mission-badge">
         <div class="status-indicator"></div>
         <span>FILA 2 Company</span>
@@ -49,11 +115,11 @@
 </template>
 
 <style lang="scss" scoped>
-$nasa-blue: #0B3D91;
-$nasa-red: #FC3D21;
-$mars-red: #CD5C5C;
-$active-red: #E63946;
-$text-primary: #FFFFFF;
+$nasa-blue: #0b3d91;
+$nasa-red: #fc3d21;
+$mars-red: #cd5c5c;
+$active-red: #e63946;
+$text-primary: #ffffff;
 $text-secondary: rgba(255, 255, 255, 0.7);
 
 .main-nav {
@@ -80,14 +146,14 @@ $text-secondary: rgba(255, 255, 255, 0.7);
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  
+
   .brand-icon {
     width: 50px;
     height: 50px;
     display: flex;
     align-items: center;
     justify-content: center;
-    
+
     img {
       width: 100%;
       height: 100%;
@@ -133,7 +199,7 @@ $text-secondary: rgba(255, 255, 255, 0.7);
   }
 
   &::before {
-    content: '';
+    content: "";
     position: absolute;
     bottom: 0;
     left: 50%;
@@ -147,7 +213,7 @@ $text-secondary: rgba(255, 255, 255, 0.7);
   &:hover {
     color: $text-primary;
     background: rgba(255, 255, 255, 0.05);
-    
+
     svg {
       transform: translateY(-2px);
     }
@@ -159,7 +225,11 @@ $text-secondary: rgba(255, 255, 255, 0.7);
 
   &.router-link-exact-active {
     color: white;
-    background: linear-gradient(135deg, rgba($active-red, 0.3), rgba($nasa-red, 0.2));
+    background: linear-gradient(
+      135deg,
+      rgba($active-red, 0.3),
+      rgba($nasa-red, 0.2)
+    );
     border: 1px solid rgba($active-red, 0.4);
     box-shadow: 0 4px 15px rgba($active-red, 0.3);
 
@@ -198,7 +268,8 @@ $text-secondary: rgba(255, 255, 255, 0.7);
 }
 
 @keyframes pulse-status {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
     transform: scale(1);
   }
