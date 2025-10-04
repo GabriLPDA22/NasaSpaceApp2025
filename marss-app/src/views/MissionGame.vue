@@ -7,25 +7,25 @@ const levels = ref([
   {
     level: 1,
     gridSize: 3,
-    imageUrl: "/images/flor.png",
+    imageUrl: " /NasaSpaceApp2025/images/flor.png",
     fact: 'Esta formación mineral, apodada la "flor de Marte", fue capturada por la cámara MAHLI y revela antiguos procesos químicos en el agua que una vez fluyó por el planeta.',
   },
   {
     level: 2,
     gridSize: 4,
-    imageUrl: "/images/foto_2.png",
+    imageUrl: "/NasaSpaceApp2025/images/foto_2.png",
     fact: "Dato curioso sobre la imagen del nivel 2. ¡Relléname cuando tengas la información!",
   },
   {
     level: 3,
     gridSize: 4,
-    imageUrl: "/images/foto_3.png",
+    imageUrl: "/NasaSpaceApp2025/images/foto_3.png",
     fact: "Dato curioso sobre la imagen del nivel 3. ¡Relléname cuando tengas la información!",
   },
   {
     level: 4,
     gridSize: 4,
-    imageUrl: "/images/foto_4.png",
+    imageUrl: "/NasaSpaceApp2025/images/foto_4.png",
     fact: "Dato curioso sobre la imagen del nivel 4. ¡Relléname cuando tengas la información!",
   },
   {
