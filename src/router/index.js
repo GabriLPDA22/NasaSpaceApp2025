@@ -28,10 +28,10 @@ const routes = [
 ];
 
 const router = createRouter({
-  // 👇 LÍNEA CORREGIDA: Le pasamos la URL base al historial del router.
+  // Esta línea es la clave para que funcione en GitHub Pages
   history: createWebHistory(import.meta.env.BASE_URL),
   routes,
-  // Tu configuración de scrollBehavior se mantiene igual.
+  // Configuración para que la página suba al principio al navegar
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) {
       return savedPosition;
