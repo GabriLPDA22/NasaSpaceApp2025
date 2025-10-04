@@ -5,6 +5,21 @@
       <h4>Contexto de la Misión</h4>
       <h3>{{ milestoneInfo.title }}</h3>
       <p>{{ milestoneInfo.description }}</p>
+
+      <div class="modal-stats">
+        <div class="stat-item">
+          <strong>☀️ Sol de la Misión:</strong>
+          <span>{{ milestoneInfo.sol }}</span>
+        </div>
+        <div class="stat-item">
+          <strong>🛣️ Distancia Recorrida:</strong>
+          <span>{{ milestoneInfo.distance }}</span>
+        </div>
+      </div>
+
+      <a :href="milestoneInfo.link" target="_blank" rel="noopener noreferrer" class="more-info-btn">
+        Saber Más en NASA.gov
+      </a>
     </div>
 
     <header class="header">
@@ -30,9 +45,19 @@
       </div>
     </div>
 
-    <CalendarModal v-if="isCalendarOpen" :initial-date="selectedDate" @close="isCalendarOpen = false" @date-selected="updateDate" />
-    <div v-if="isLoading" class="feedback-message"><p>Cargando imágenes desde Marte... 👨‍🚀</p></div>
-    <div v-else-if="error" class="feedback-message error"><p>{{ error }}</p></div>
+    <CalendarModal
+      v-if="isCalendarOpen"
+      :initial-date="selectedDate"
+      @close="isCalendarOpen = false"
+      @date-selected="updateDate"
+    />
+
+    <div v-if="isLoading" class="feedback-message">
+      <p>Cargando imágenes desde Marte... 👨‍🚀</p>
+    </div>
+    <div v-else-if="error" class="feedback-message error">
+      <p>{{ error }}</p>
+    </div>
     <div v-else-if="photos.length > 0">
       <div class="photo-grid">
         <div v-for="photo in photos" :key="photo.id" class="photo-card">
@@ -44,12 +69,34 @@
         </div>
       </div>
       <div class="pagination">
-        <button @click="previousPage" :disabled="currentPage === 1 || isLoading" class="nav-button">&laquo;</button>
-        <button v-for="pageNumber in paginationNumbers" :key="pageNumber" @click="goToPage(pageNumber)" class="page-number" :class="{ active: pageNumber === currentPage }">{{ pageNumber }}</button>
-        <button @click="nextPage" :disabled="isLastPage || isLoading" class="nav-button">&raquo;</button>
+        <button
+          @click="previousPage"
+          :disabled="currentPage === 1 || isLoading"
+          class="nav-button"
+        >
+          &laquo;
+        </button>
+        <button
+          v-for="pageNumber in paginationNumbers"
+          :key="pageNumber"
+          @click="goToPage(pageNumber)"
+          class="page-number"
+          :class="{ active: pageNumber === currentPage }"
+        >
+          {{ pageNumber }}
+        </button>
+        <button
+          @click="nextPage"
+          :disabled="isLastPage || isLoading"
+          class="nav-button"
+        >
+          &raquo;
+        </button>
       </div>
     </div>
-    <div v-else-if="hasSearched" class="feedback-message"><p>No se encontraron fotos con los filtros seleccionados.</p></div>
+    <div v-else-if="hasSearched" class="feedback-message">
+      <p>No se encontraron fotos con los filtros seleccionados.</p>
+    </div>
   </div>
 </template>
 
@@ -61,7 +108,6 @@ import CalendarModal from '../components/CalendarModal.vue';
 
 const route = useRoute();
 
-// --- ESTADO ---
 const photos = ref([]);
 const selectedDate = ref('2017-12-15');
 const isLoading = ref(false);
@@ -72,63 +118,124 @@ const currentPage = ref(1);
 const isLastPage = ref(false);
 const isCalendarOpen = ref(false);
 const PHOTOS_PER_PAGE = 12;
-// <-- CAMBIO: Nuevo estado para la información del hito
 const milestoneInfo = ref(null);
-const cameras = ref([ { abbr: 'FHAZ', name: 'Front Hazard' }, { abbr: 'RHAZ', name: 'Rear Hazard' }, { abbr: 'MAST', name: 'Mast Camera' }, { abbr: 'CHEMCAM', name: 'ChemCam' }, { abbr: 'MAHLI', name: 'MAHLI' }, { abbr: 'MARDI', name: 'MARDI' }, { abbr: 'NAVCAM', name: 'NavCam' } ]);
+
+const cameras = ref([
+  { abbr: 'FHAZ', name: 'Front Hazard' },
+  { abbr: 'RHAZ', name: 'Rear Hazard' },
+  { abbr: 'MAST', name: 'Mast Camera' },
+  { abbr: 'CHEMCAM', name: 'ChemCam' },
+  { abbr: 'MAHLI', name: 'MAHLI' },
+  { abbr: 'MARDI', name: 'MARDI' },
+  { abbr: 'NAVCAM', name: 'NavCam' },
+]);
 
 const formattedDate = computed(() => {
   const date = new Date(selectedDate.value + 'T00:00:00');
-  return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+  return date.toLocaleDateString('es-ES', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
 });
 
-// --- LÓGICA ---
-watch([selectedDate, selectedCamera], () => { searchPhotos(); });
+watch([selectedDate, selectedCamera], () => {
+  searchPhotos();
+});
+
 const paginationNumbers = computed(() => {
   const windowSize = 5;
   const start = Math.max(1, currentPage.value - Math.floor(windowSize / 2));
   const numbers = [];
-  for(let i = 0; i < windowSize; i++) { const page = start + i; if (isLastPage.value && page > currentPage.value) { break; } numbers.push(page); }
+  for(let i = 0; i < windowSize; i++) {
+    const page = start + i;
+    if (isLastPage.value && page > currentPage.value) {
+      break;
+    }
+    numbers.push(page);
+  }
   return numbers;
 });
-const goToPage = (pageNumber) => { if (pageNumber === currentPage.value) return; currentPage.value = pageNumber; fetchPhotos(); };
+
+const goToPage = (pageNumber) => {
+  if (pageNumber === currentPage.value) return;
+  currentPage.value = pageNumber;
+  fetchPhotos();
+};
+
 const fetchPhotos = async () => {
-  isLoading.value = true; error.value = null; const apiKey = 'NCVkqcCVoHJEsgWC5CxoNKul6BS53GfhLmpSYXzj';
+  isLoading.value = true;
+  error.value = null;
+  const apiKey = 'NCVkqcCVoHJEsgWC5CxoNKul6BS53GfhLmpSYXzj';
   let apiUrl = `https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?earth_date=${selectedDate.value}&page=${currentPage.value}&api_key=${apiKey}`;
-  if (selectedCamera.value) { apiUrl += `&camera=${selectedCamera.value}`; }
+  
+  if (selectedCamera.value) {
+    apiUrl += `&camera=${selectedCamera.value}`;
+  }
+
   try {
     const response = await axios.get(apiUrl);
     photos.value = response.data.photos.slice(0, PHOTOS_PER_PAGE);
     isLastPage.value = response.data.photos.length < 25;
-  } catch (err) { console.error("Error al obtener las fotos:", err); error.value = "Hubo un problema al conectar con la API."; photos.value = [];
-  } finally { isLoading.value = false; }
+  } catch (err) {
+    console.error("Error al obtener las fotos:", err);
+    error.value = "Hubo un problema al conectar con la API.";
+    photos.value = [];
+  } finally {
+    isLoading.value = false;
+  }
 };
-const searchPhotos = () => { currentPage.value = 1; hasSearched.value = true; fetchPhotos(); };
-const nextPage = () => { if (!isLastPage.value) { currentPage.value++; fetchPhotos(); } };
-const previousPage = () => { if (currentPage.value > 1) { currentPage.value--; fetchPhotos(); } };
-const updateDate = (newDate) => { selectedDate.value = newDate; isCalendarOpen.value = false; };
+
+const searchPhotos = () => {
+  currentPage.value = 1;
+  hasSearched.value = true;
+  fetchPhotos();
+};
+
+const nextPage = () => {
+  if (!isLastPage.value) {
+    currentPage.value++;
+    fetchPhotos();
+  }
+};
+
+const previousPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value--;
+    fetchPhotos();
+  }
+};
+
+const updateDate = (newDate) => {
+  selectedDate.value = newDate;
+  isCalendarOpen.value = false;
+};
 
 onMounted(() => {
-    // <-- CAMBIO: Lógica para leer todos los datos de la URL
-    if (route.query.title && route.query.description) {
-      milestoneInfo.value = {
-        title: route.query.title,
-        description: route.query.description,
-      };
-    }
-    if (route.query.date) {
-        selectedDate.value = route.query.date;
-    }
-    if (route.query.camera) {
-        selectedCamera.value = route.query.camera;
-    } else if (route.query.date) {
-        // Si venimos de un hito pero no tiene cámara, reseteamos la cámara
-        selectedCamera.value = '';
-    }
-    
-    hasSearched.value = true;
-    if (!route.query.date && !route.query.camera) {
-        fetchPhotos();
-    }
+  if (route.query.title) {
+    milestoneInfo.value = {
+      title: route.query.title,
+      description: route.query.description,
+      sol: route.query.sol,
+      distance: route.query.distance,
+      link: route.query.link,
+    };
+  }
+
+  if (route.query.date) {
+    selectedDate.value = route.query.date;
+  }
+
+  if (route.query.camera) {
+    selectedCamera.value = route.query.camera;
+  } else if (route.query.date) {
+    selectedCamera.value = '';
+  }
+  
+  hasSearched.value = true;
+  if (!route.query.date && !route.query.camera) {
+    fetchPhotos();
+  }
 });
 </script>
 
@@ -151,9 +258,11 @@ $border-color: #333;
 
 .context-modal {
   position: fixed;
-  top: 100px;
+  top: 80px;
   right: 20px;
-  width: 300px;
+  width: 320px;
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
   background-color: lighten($card-bg, 5%);
   border-radius: 8px;
   border: 1px solid $border-color;
@@ -166,6 +275,7 @@ $border-color: #333;
     color: darken($light-text, 30%);
     text-transform: uppercase;
     font-size: 0.8rem;
+    letter-spacing: 1px;
   }
 
   h3 {
@@ -176,6 +286,7 @@ $border-color: #333;
   p {
     font-size: 0.9rem;
     line-height: 1.5;
+    margin-bottom: 1.5rem;
   }
 
   .close-modal-btn {
@@ -187,6 +298,45 @@ $border-color: #333;
     color: $light-text;
     font-size: 1.5rem;
     cursor: pointer;
+  }
+
+  .modal-stats {
+    background-color: $dark-bg;
+    border-radius: 4px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .stat-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    
+    &:not(:last-child) {
+      margin-bottom: 0.5rem;
+    }
+
+    strong {
+      color: darken($light-text, 20%);
+    }
+  }
+
+  .more-info-btn {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+    background-color: $nasa-blue;
+    color: white;
+    padding: 1rem;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: lighten($nasa-blue, 10%);
+    }
   }
 }
 
@@ -228,7 +378,8 @@ $border-color: #333;
     font-weight: bold;
   }
   
-  select, .date-display-button {
+  select,
+  .date-display-button {
     width: 100%;
     background-color: $dark-bg;
     color: $light-text;
@@ -294,7 +445,8 @@ $border-color: #333;
   gap: 0.5rem;
   margin-top: 2rem;
 
-  .nav-button, .page-number {
+  .nav-button,
+  .page-number {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -359,7 +511,9 @@ $border-color: #333;
       flex-grow: 0;
     }
     
-    button:not(.date-display-button), select, .date-display-button {
+    button:not(.date-display-button),
+    select,
+    .date-display-button {
       width: auto;
       min-width: 180px;
     }
